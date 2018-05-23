@@ -151,7 +151,7 @@ class Brick:
 		self.__height = height
 		self.__rectangle = self.__canvas.create_rectangle(pos_x - self.__width / 2, pos_y - self.__height / 2,
 		                                                  pos_x + self.__width / 2, pos_y + self.__height / 2,
-		                                                  fill = color)
+		                                                  fill = color, outline = None)
 	
 	def get_wight(self):
 		return self.__width
