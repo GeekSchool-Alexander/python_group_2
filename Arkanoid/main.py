@@ -166,8 +166,10 @@ class Brick:
 			return self.__canvas.coords(self.__rectangle)[3]
 	
 	def __del__(self):
-		self.__canvas.delete(self.__rectangle)
-
+		try:
+			self.__canvas.delete(self.__rectangle)
+		except:
+			pass
 
 class Controller:
 	"""Класс Контроллер.
