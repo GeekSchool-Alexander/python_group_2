@@ -1,3 +1,4 @@
+import math
 from tkinter import *
 
 
@@ -53,8 +54,6 @@ class Ball:
 		"""Метод перемещает мяч в зависимости от текущей скорости."""
 		self.changePosition(self.speed_X, self.speed_Y)
 	
-	# print(self.getCoords('left'), self.getCoords('center-x'), self.getCoords('right'))
-	
 	def getSpeedX(self):
 		return self.speed_X
 	
@@ -90,7 +89,11 @@ class Ball:
 			return (self.getCoords('l') + self.getCoords('r')) / 2
 		elif side in ('cy', 'center-y'):
 			return (self.getCoords('t') + self.getCoords('b')) / 2
-
+	
+	def angular_bounce(self, angle):
+		S = math.sqrt(self.speed_X ** 2 + self.speed_Y ** 2)
+		self.speed_Y = -S * math.sin(math.radians(angle))
+		self.speed_X = S * math.cos(math.radians(angle))
 
 class Pad:
 	"""Класс Ракетка"""
@@ -116,6 +119,9 @@ class Pad:
 	
 	def setSpeed(self, x):
 		self.speed = x
+	
+	def getSize(self):
+		return self.size
 	
 	def getCoords(self, side):
 		"""Метод принимает строку-сторону.
@@ -175,7 +181,7 @@ class Controller:
 			Сохраняет ссылки на контролируемые объекты."""
 		self.window = window
 		self.ball = ball
-		self.ball.setSpeed(-1, 15)
+		self.ball.setSpeed(0, 10)
 		self.pad = pad
 		self.bricks = bricks
 	
@@ -194,17 +200,25 @@ class Controller:
 		if (self.pad.getCoords('t') <= self.ball.getCoords('b') <= self.pad.getCoords('b')) and (
 				self.pad.getCoords('l') <= self.ball.getCoords('cx') <= self.pad.getCoords(
 			'r')):  # Если мяч касается или входит в ракетку,
-			self.ball.bounce('y')  # отбиться по вертикали
+			# self.ball.bounce('y')  # отбиться по вертикали
+			self.ball.angular_bounce(self.get_pos_ball_pad())
 		
 		for brick in self.bricks:
 			pos = self.get_pos_ball_brick(self.ball, brick)
 			if pos != None:
 				if pos in {0, 180}:
 					self.ball.bounce('x')
+					self.bricks.remove(brick)
 				elif pos in {90, 270}:
 					self.ball.bounce('y')
+					self.bricks.remove(brick)
 				else:
 					assert False, "Wrong returned position of touch"
+	
+	def get_pos_ball_pad(self):
+		delta_x = self.pad.getCoords("r") - self.ball.getCoords("cx")
+		angle = 30 + ((150 - 30) / self.pad.getSize()) * delta_x
+		return angle
 	
 	def get_pos_ball_brick(self, ball, brick):
 		br_x_1, br_x_2 = brick.getCoords('l'), brick.getCoords('r')
@@ -264,10 +278,10 @@ root.title('GeekSchool Arkanoid')  # Изменение заголовка ок�
 w = Window(1200, 800)  # Создание окна арканоида
 
 level = []
-
-for i in range(100, 1200, 200):
-	b = Brick(w, 100, 50, i, 200, "dark blue")
-	level.append(b)
+level.append(Brick(w, 100, 50, 150, 100, "blue"))
+level.append(Brick(w, 120, 60, 450, 150, "red"))
+level.append(Brick(w, 100, 60, 650, 150, "red"))
+level.append(Brick(w, 100, 60, 850, 150, "red"))
 
 # Создание контроллера:
 c = Controller(w, Ball(w, 10, w.getCenterX(), w.getCenterY(), "dark red"),
