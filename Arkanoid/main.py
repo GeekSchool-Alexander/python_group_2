@@ -232,6 +232,14 @@ class Controller:
 			if not self.HP:
 				self.ball.setSpeed(0, 0)
 				self.window.canvas.itemconfig(self.window.text_end_game, text = "YOU LOSE", fill = "red")
+		
+		if self.win():
+			self.ball.setPosition(self.window.getCenterX(), self.window.getCenterY())
+			self.ball.setSpeed(0, 0)
+			self.window.canvas.itemconfig(self.window.text_end_game, text = "YOU WIN")
+	
+	def win(self):
+		return not len(self.bricks)
 	
 	def goal(self):
 		return self.ball.getCoords("cy") > self.window.getHeight()
