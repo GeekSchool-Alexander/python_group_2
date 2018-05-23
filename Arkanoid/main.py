@@ -50,6 +50,9 @@ class Ball:
 		"""Метод принимает вектора по X и Y, на которые изменит текущее местоположение мяч."""
 		self.canvas.move(self.oval, x, y)
 	
+	def setPosition(self, x, y):
+		self.canvas.coords(self.oval, x - self.radius, y - self.radius, x + self.radius, y + self.radius)
+	
 	def fly(self):
 		"""Метод перемещает мяч в зависимости от текущей скорости."""
 		self.changePosition(self.speed_X, self.speed_Y)
@@ -186,6 +189,7 @@ class Controller:
 		self.ball.setSpeed(0, 10)
 		self.pad = pad
 		self.bricks = bricks
+		self.HP = 3
 	
 	def ballMovement(self):
 		"""Управление движением мяча."""
@@ -205,6 +209,7 @@ class Controller:
 			# self.ball.bounce('y')  # отбиться по вертикали
 			self.ball.angular_bounce(self.get_pos_ball_pad())
 		
+		# Breaking bricks
 		for brick in self.bricks:
 			pos = self.get_pos_ball_brick(self.ball, brick)
 			if pos != None:
@@ -216,7 +221,16 @@ class Controller:
 					self.bricks.remove(brick)
 				else:
 					assert False, "Wrong returned position of touch"
+		
+		if self.goal():
+			self.ball.setPosition(self.window.getCenterX(), self.window.getCenterY())
+			self.HP -= 1
+			if not self.HP:
+				self.ball.setSpeed(0, 0)
 	
+	def goal(self):
+		return self.ball.getCoords("cy") > self.window.getHeight()
+		
 	def get_pos_ball_pad(self):
 		delta_x = self.pad.getCoords("r") - self.ball.getCoords("cx")
 		angle = 30 + ((150 - 30) / self.pad.getSize()) * delta_x
