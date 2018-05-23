@@ -14,7 +14,10 @@ class Window:
 		self.canvas.focus_set()  # Фокусировка ввода (например, нажатия клавиш) на холсте.
 		self.width = width
 		self.height = height
-	
+		self.text_HP = self.canvas.create_text(60, 20, fill = "dark red", text = "Health: 3", font = "Tahoma 18")
+		self.text_end_game = self.canvas.create_text(self.getCenterX(), self.getCenterY() + 100, fill = "green",
+		                                             text = "", font = "Tahoma 62")
+		
 	def getCanvas(self):
 		return self.canvas
 	
@@ -225,8 +228,10 @@ class Controller:
 		if self.goal():
 			self.ball.setPosition(self.window.getCenterX(), self.window.getCenterY())
 			self.HP -= 1
+			self.window.canvas.itemconfig(self.window.text_HP, text = "Health: {}".format(self.HP))
 			if not self.HP:
 				self.ball.setSpeed(0, 0)
+				self.window.canvas.itemconfig(self.window.text_end_game, text = "YOU LOSE", fill = "red")
 	
 	def goal(self):
 		return self.ball.getCoords("cy") > self.window.getHeight()
